@@ -1,9 +1,15 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:erevive/login/loginpage.dart';
 import 'package:flutter/material.dart';
+import 'package:erevive/login/welcomemyapp.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignupPage extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +68,7 @@ class SignupPage extends StatelessWidget {
                       duration: const Duration(milliseconds: 1200),
                       child: makeInput(
                         label: "Name",
+                        controller: _nameController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'This field is mandatory';
@@ -74,6 +81,7 @@ class SignupPage extends StatelessWidget {
                       duration: const Duration(milliseconds: 1300),
                       child: makeInput(
                         label: "Phone Number",
+                        controller: _phoneNumberController,
                         keyboardType: TextInputType.phone,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -86,7 +94,9 @@ class SignupPage extends StatelessWidget {
                     FadeInUp(
                       duration: const Duration(milliseconds: 1400),
                       child: makeInput(
-                        label: "Username",
+                        label: "Email",
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'This field is mandatory';
@@ -99,6 +109,7 @@ class SignupPage extends StatelessWidget {
                       duration: const Duration(milliseconds: 1500),
                       child: makeInput(
                         label: "Password",
+                        controller: _passwordController,
                         obscureText: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -126,10 +137,45 @@ class SignupPage extends StatelessWidget {
                     child: MaterialButton(
                       minWidth: double.infinity,
                       height: 60,
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          // Form is valid, proceed with signup action
-                          // Implement your signup logic here
+                          try {
+                            await FirebaseAuth.instance
+                                .createUserWithEmailAndPassword(
+                              email: _emailController.text,
+                              password: _passwordController.text,
+                            );
+                            // Sign-up successful, navigate to next screen
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MyApp(),
+                              ),
+                            );
+                          } catch (e) {
+                            if (e is FirebaseAuthException &&
+                                e.code == 'email-already-in-use') {
+                              // Handle case where email is already in use
+                              // Prompt the user to choose a different email or log in
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'The email address is already in use. Please log in instead.'),
+                                  duration: Duration(seconds: 5),
+                                ),
+                              );
+                            } else {
+                              // Handle other errors
+                              print(e.toString());
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'An error occurred. Please try again later.'),
+                                  duration: Duration(seconds: 5),
+                                ),
+                              );
+                            }
+                          }
                         }
                       },
                       color: Colors.greenAccent,
@@ -153,7 +199,7 @@ class SignupPage extends StatelessWidget {
                       const Text("Already have an account?"),
                       GestureDetector(
                         onTap: () {
-                          // Navigate to another page
+                          // Navigate to login page
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -181,6 +227,7 @@ class SignupPage extends StatelessWidget {
   Widget makeInput(
       {label,
       obscureText = false,
+      TextEditingController? controller,
       required FormFieldValidator<String> validator,
       TextInputType keyboardType = TextInputType.text}) {
     return Column(
@@ -195,7 +242,8 @@ class SignupPage extends StatelessWidget {
           height: 5,
         ),
         TextFormField(
-          keyboardType: keyboardType, // Set keyboardType here
+          controller: controller,
+          keyboardType: keyboardType,
           obscureText: obscureText,
           decoration: InputDecoration(
             contentPadding:

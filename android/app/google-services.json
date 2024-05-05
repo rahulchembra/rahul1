@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1025308874936",
+    "project_id": "erevive-a63ca",
+    "storage_bucket": "erevive-a63ca.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1025308874936:android:772486dad5ed4084c33c4d",
+        "android_client_info": {
+          "package_name": "com.example.erevive"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDm8zmfPFOI1iWZgLq-h-quqfGt5wlNEQk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
